@@ -1,0 +1,27 @@
+# Node.js dependencies
+/node_modules
+/apps/web/node_modules
+
+# Next.js build output and cache
+/apps/web/.next
+
+# Local environment variables
+# This is very important for security!
+.env.local
+/apps/web/.env.local
+
+# Python virtual environment
+/.venv
+
+# Python caches
+__pycache__/
+*.pyc
+
+# VS Code settings
+.vscode/
+
+# Firebase Admin SDK key
+# Add the exact name of your key file here
+lookalike-773bf-firebase-adminsdk-fbsvc-a0324d9ab8.json
+
+/.vercel
