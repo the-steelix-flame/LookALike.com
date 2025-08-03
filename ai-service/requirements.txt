@@ -1,5 +1,8 @@
+Flask
 deepface
 tensorflow
 opencv-python-headless
 numpy
 tf-keras
+gunicorn
+Flask-Cors
