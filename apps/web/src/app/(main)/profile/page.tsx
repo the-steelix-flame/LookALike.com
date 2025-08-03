@@ -69,13 +69,13 @@ export default function ProfilePage() {
         reader.readAsDataURL(profilePicFile);
       });
     }
-    
+
     try {
       const response = await fetch('/api/users/update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          userId: user.uid, 
+        body: JSON.stringify({
+          userId: user.uid,
           displayName,
           profilePic_base64
         }),
@@ -87,8 +87,13 @@ export default function ProfilePage() {
       }
 
       alert('Profile updated successfully!');
-    } catch (error: any) {
-      alert(error.message);
+    } catch (error) {
+      // FIX: Check if the error is an instance of Error before accessing .message
+      if (error instanceof Error) {
+        alert(error.message);
+      } else {
+        alert('An unknown error occurred.');
+      }
     } finally {
       setIsSaving(false);
     }
@@ -97,20 +102,19 @@ export default function ProfilePage() {
   const handleDeleteAccount = async () => {
     if (!user) return;
     if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-        try {
-            await fetch('/api/users/delete', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId: user.uid }),
-            });
-            alert('Account deleted successfully. You will be logged out.');
-            // This will trigger the onAuthStateChanged listener to log the user out
-            await user.delete(); 
-            router.push('/');
-        } catch (error) {
-            alert('Failed to delete account.');
-            console.error(error);
-        }
+      try {
+        await fetch('/api/users/delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.uid }),
+        });
+        alert('Account deleted successfully. You will be logged out.');
+        await user.delete();
+        router.push('/');
+      } catch (error) {
+        alert('Failed to delete account.');
+        console.error(error);
+      }
     }
   };
 
@@ -126,10 +130,10 @@ export default function ProfilePage() {
   return (
     <div className="container mx-auto max-w-2xl px-6 py-8 space-y-8">
       <h1 className="text-4xl font-bold text-text text-center">Manage Your Profile</h1>
-      
+
       <div className="flex justify-center">
-        <Image 
-          src={profilePicPreview || 'https://placehold.co/128x128/FFFDE7/1F2937?text=No+Pic'} 
+        <Image
+          src={profilePicPreview || 'https://placehold.co/128x128/FFFDE7/1F2937?text=No+Pic'}
           alt="Current profile picture"
           width={128}
           height={128}
