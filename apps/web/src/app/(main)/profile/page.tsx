@@ -25,6 +25,7 @@ export default function ProfilePage() {
     if (user) {
       const fetchProfile = async () => {
         try {
+          // FIX: Removed the extra '.' from the URL
           const response = await fetch('/api/users/get-profile', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -81,14 +82,18 @@ export default function ProfilePage() {
         }),
       });
 
+      const responseText = await response.text();
+      if (!responseText) {
+        throw new Error("The AI service timed out. This is common on the first try. Please wait a minute and try again.");
+      }
+      const responseData = JSON.parse(responseText);
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to save changes.');
+        throw new Error(responseData.error || 'Failed to save changes.');
       }
 
       alert('Profile updated successfully!');
     } catch (error) {
-      // FIX: Check if the error is an instance of Error before accessing .message
       if (error instanceof Error) {
         alert(error.message);
       } else {
