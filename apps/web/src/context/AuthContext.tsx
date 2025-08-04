@@ -2,47 +2,83 @@
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth } from '@/lib/firebase/config'; // FIX: Removed .ts from the end
+import { auth } from '@/lib/firebase/config';
+import { useRouter, usePathname } from 'next/navigation';
 
-// Define the shape of the context data
-interface AuthContextType {
-    user: User | null;
-    loading: boolean;
+interface AppUserProfile {
+    display_name: string;
+    profile_pic_url: string;
+    embedding: number[] | null; // We need to know if the embedding exists
 }
 
-// Create the context with a default value
-const AuthContext = createContext<AuthContextType>({ user: null, loading: true });
+interface AuthContextType {
+    user: User | null;
+    profile: AppUserProfile | null;
+    loading: boolean;
+    hasCompletedOnboarding: boolean;
+}
 
-// Create the provider component
+const AuthContext = createContext<AuthContextType>({
+    user: null,
+    profile: null,
+    loading: true,
+    hasCompletedOnboarding: false
+});
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
+    const [profile, setProfile] = useState<AppUserProfile | null>(null);
     const [loading, setLoading] = useState(true);
+    const router = useRouter();
+    const pathname = usePathname();
 
     useEffect(() => {
-        // onAuthStateChanged is a real-time listener from Firebase
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            setUser(user ? user : null);
+        const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+            if (firebaseUser) {
+                setUser(firebaseUser);
+                // User is logged in, now fetch their profile from OUR database
+                try {
+                    const response = await fetch('/api/users/get-profile', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userId: firebaseUser.uid }),
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        const userProfile = data.profile;
+                        setProfile(userProfile);
+
+                        // THE CORE LOGIC: Enforce onboarding
+                        if (!userProfile.embedding && pathname !== '/onboarding') {
+                            // If they have no embedding and aren't on the onboarding page, force them there.
+                            router.push('/onboarding');
+                        }
+                    } else {
+                        // New user who isn't in our DB yet, send to onboarding
+                        router.push('/onboarding');
+                    }
+                } catch (error) {
+                    console.error("Failed to fetch profile", error);
+                }
+            } else {
+                // User is logged out
+                setUser(null);
+                setProfile(null);
+            }
             setLoading(false);
         });
 
-        // Cleanup the subscription when the component unmounts
         return () => unsubscribe();
-    }, []); // Empty dependency array ensures this runs only once on mount
+    }, [router, pathname]);
 
-    const value = { user, loading };
+    const hasCompletedOnboarding = !!profile?.embedding;
 
-    // Show a loading indicator while Firebase is checking the auth state
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center h-screen bg-background">
-                {/* You can use any loading spinner here */}
-                <p className="text-text">Loading...</p>
-            </div>
-        );
-    }
-
-    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+    return (
+        <AuthContext.Provider value={{ user, profile, loading, hasCompletedOnboarding }}>
+            {children}
+        </AuthContext.Provider>
+    );
 };
 
-// Create a custom hook for easy access to the context
 export const useAuth = () => useContext(AuthContext);

@@ -4,16 +4,15 @@ import { toSql } from 'pgvector/utils';
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId, displayName, profilePic_base64 } = await req.json();
-    // CHANGE: Use the new environment variable for the AI service URL
+    const { userId, displayName, profilePicUrl, profilePic_base64 } = await req.json();
     const aiServiceUrl = process.env.NEXT_PUBLIC_AI_SERVICE_URL;
 
     if (!userId || !displayName) {
       return NextResponse.json({ error: 'User ID and display name are required.' }, { status: 400 });
     }
 
+    // If a new image was uploaded (we can tell by the presence of the base64 string)
     if (profilePic_base64) {
-      // CHANGE: Call the external AI service
       const embeddingRes = await fetch(`${aiServiceUrl}/generate_embedding`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -28,17 +27,17 @@ export async function POST(req: NextRequest) {
       const { embedding } = await embeddingRes.json();
       const embeddingSql = toSql(embedding);
 
-      const newProfilePicUrl = 'https://placehold.co/128x128/FBBF24/FFFFFF?text=New+Pic';
-
+      // Now we save the REAL URL from Firebase Storage
       await sql`
         UPDATE users
         SET 
           display_name = ${displayName},
-          profile_pic_url = ${newProfilePicUrl},
+          profile_pic_url = ${profilePicUrl},
           embedding = ${embeddingSql}
         WHERE id = ${userId};
       `;
     } else {
+      // If no new picture was uploaded, only update the name
       await sql`
         UPDATE users
         SET display_name = ${displayName}

@@ -33,7 +33,6 @@ export default function FinderPage() {
     setResults([]);
 
     try {
-      // CHANGE: Call the external AI service using the environment variable
       const aiServiceUrl = process.env.NEXT_PUBLIC_AI_SERVICE_URL;
       const embeddingRes = await fetch(`${aiServiceUrl}/generate_embedding`, {
         method: 'POST',
@@ -48,7 +47,6 @@ export default function FinderPage() {
 
       const { embedding } = await embeddingRes.json();
 
-      // This part remains the same, calling our own Next.js API
       const searchRes = await fetch('/api/search/lookalike', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -79,45 +77,45 @@ export default function FinderPage() {
   };
 
   return (
-    <div className="container mx-auto px-6 py-12">
-      <div className="flex flex-col items-center p-8 bg-primary rounded-lg shadow-lg">
-        <h2 className="text-3xl font-semibold mb-4 text-text">Find Your Lookalike!</h2>
-        <p className="mb-6 text-gray-600 max-w-md text-center">
+    <div className="container" style={{padding: '3rem 1.5rem'}}>
+      <div className="card" style={{display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '2rem'}}>
+        <h2 style={{fontSize: '1.875rem', fontWeight: '600', marginBottom: '1rem'}}>Find Your Lookalike!</h2>
+        <p style={{marginBottom: '1.5rem', color: 'var(--text-light-color)', maxWidth: '500px', textAlign: 'center'}}>
           Upload a clear photo of a face to see who they look like from our featured users.
         </p>
         <input 
           type="file" 
           accept="image/*" 
           onChange={handleImageUpload} 
-          className="mb-4 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-accent file:text-white hover:file:bg-accent-dark cursor-pointer" 
+          style={{marginBottom: '1rem'}}
         />
-        {image && <Image src={image} alt="Uploaded preview" width={200} height={200} className="mb-4 rounded-lg shadow-md object-cover" />}
+        {image && <Image src={image} alt="Uploaded preview" width={200} height={200} style={{marginBottom: '1rem', borderRadius: '8px', boxShadow: '0 4px 12px var(--shadow-color)', objectFit: 'cover'}} />}
         
         <button 
           onClick={handleSearch} 
           disabled={!image || loading} 
-          className="bg-accent text-white px-8 py-3 rounded-lg font-bold text-lg hover:bg-accent-dark disabled:bg-gray-400 transition-colors"
+          className="btn btn-primary"
         >
           {loading ? 'Analyzing & Searching...' : 'Find My Lookalike'}
         </button>
 
-        {error && !loading && <p className="text-red-500 mt-4 font-semibold">{error}</p>}
+        {error && !loading && <p style={{color: 'var(--danger-color)', marginTop: '1rem', fontWeight: '600'}}>{error}</p>}
 
         {results.length > 0 && (
-          <div className="mt-8 w-full">
-              <h3 className="text-2xl font-semibold text-center mb-4 text-text">Top Matches</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div style={{marginTop: '2rem', width: '100%'}}>
+              <h3 style={{fontSize: '1.5rem', fontWeight: '600', textAlign: 'center', marginBottom: '1rem'}}>Top Matches</h3>
+              <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem'}}>
                   {results.map(result => (
-                      <div key={result.id} className="bg-background p-4 rounded-lg shadow-md text-center transform hover:scale-105 transition-transform">
+                      <div key={result.id} className="card" style={{textAlign: 'center'}}>
                       <Image 
-                          src={result.profile_pic_url || 'https://placehold.co/128x128/FFFDE7/1F2D37?text=No+Image'} 
+                          src={result.profile_pic_url || 'https://picsum.photos/128'} 
                           alt={result.display_name}
                           width={128}
                           height={128}
-                          className="w-32 h-32 rounded-full mx-auto mb-2 object-cover bg-gray-300" 
+                          style={{borderRadius: '9999px', margin: '0 auto 0.5rem', objectFit: 'cover'}}
                       />
-                      <p className="font-semibold text-lg text-text">{result.display_name}</p>
-                      <p className="text-sm text-green-600 font-bold">Similarity: {(result.similarity * 100).toFixed(2)}%</p>
+                      <p style={{fontWeight: '600', fontSize: '1.125rem'}}>{result.display_name}</p>
+                      <p style={{fontSize: '0.875rem', color: '#16A34A', fontWeight: '700'}}>Similarity: {(result.similarity * 100).toFixed(2)}%</p>
                       </div>
                   ))}
               </div>

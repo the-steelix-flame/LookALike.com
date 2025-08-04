@@ -8,8 +8,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
     }
 
+    // FIX: Select the 'embedding' column as well
     const { rows } = await sql`
-      SELECT id, display_name, profile_pic_url 
+      SELECT id, display_name, profile_pic_url, embedding 
       FROM users 
       WHERE id = ${userId};
     `;

@@ -1,77 +1,96 @@
+'use client';
+
 import Link from 'next/link';
 import React from 'react';
-import Image from 'next/image'; // Import the Next.js Image component
+import Image from 'next/image';
+import { TotalUserCounter } from '@/components/TotalUserCounter'; // Import the new component
 
-// --- Page Sections ---
 const HeroSection = () => (
-  <div className="text-center py-20 bg-primary">
-    <h1 className="text-5xl font-extrabold text-text mb-4">Find Your Digital Twin</h1>
-    <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-      Ever wondered who you look like? Upload a photo and our AI will scan our database of users and celebrities to find your doppelgänger.
+  <section style={{ textAlign: 'center', padding: '5rem 1.5rem', backgroundColor: 'var(--primary-color)' }}>
+    <h1 style={{ fontSize: '3.75rem', fontWeight: '800', marginBottom: '1rem' }}>Find Your Digital Twin</h1>
+    <p style={{ fontSize: '1.25rem', color: 'var(--text-light-color)', marginBottom: '2rem', maxWidth: '768px', margin: '0 auto 2rem' }}>
+      Join our community to find your doppelgänger! Our AI scans users and celebrities to discover who you look like, and helps them find you too.
     </p>
-    <Link href="/finder" className="bg-accent text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-accent-dark transition-transform hover:scale-105 inline-block">
+    <Link href="/finder" className="btn btn-primary" style={{ fontSize: '1.125rem', padding: '1rem 2rem' }}>
       Find Your Lookalike Now
     </Link>
-  </div>
+    <div style={{display: 'flex', justifyContent: 'center'}}>
+        <TotalUserCounter />
+    </div>
+  </section>
+);
+
+const SeeTheMagicSection = () => (
+  <section style={{ padding: '5rem 0' }}>
+    <div className="container" style={{ textAlign: 'center' }}>
+      <h2 style={{ fontSize: '2.5rem', fontWeight: '700', marginBottom: '3rem' }}>Real People, Real Matches</h2>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', alignItems: 'center' }}>
+        <div style={{ borderRadius: '16px', overflow: 'hidden', boxShadow: '0 8px 32px 0 var(--shadow-color)' }}>
+          <Image src="/images/twins1.jpg" alt="Lookalike match example 1" width={600} height={600} style={{ width: '100%', height: 'auto', objectFit: 'cover' }} />
+        </div>
+        <div style={{ borderRadius: '16px', overflow: 'hidden', boxShadow: '0 8px 32px 0 var(--shadow-color)' }}>
+          <Image src="/images/twins2.jpg" alt="Lookalike match example 2" width={600} height={600} style={{ width: '100%', height: 'auto', objectFit: 'cover' }} />
+        </div>
+      </div>
+    </div>
+  </section>
 );
 
 const HowItWorksSection = () => (
-  <div className="py-20 container mx-auto px-6 bg-background">
-    <h2 className="text-4xl font-bold text-center mb-12 text-text">How It Works</h2>
-    <div className="grid md:grid-cols-3 gap-8 text-center">
-      <div className="p-6 bg-white rounded-lg shadow-lg">
-        <h3 className="text-2xl font-semibold mb-2">1. Upload a Photo</h3>
-        <p>Choose a clear, front-facing photo of yourself for the best results.</p>
-      </div>
-      <div className="p-6 bg-white rounded-lg shadow-lg">
-        <h3 className="text-2xl font-semibold mb-2">2. AI Analysis</h3>
-        <p>Our advanced AI model analyzes the unique features of your face.</p>
-      </div>
-      <div className="p-6 bg-white rounded-lg shadow-lg">
-        <h3 className="text-2xl font-semibold mb-2">3. Discover Matches</h3>
-        <p>See your top matches from our community and get your similarity score.</p>
-      </div>
-    </div>
-  </div>
-);
-
-// NEW SECTION to display your local images
-const SeeTheMagicSection = () => (
-  <div className="py-20 bg-background">
-    <div className="container mx-auto px-6 text-center">
-      <h2 className="text-4xl font-bold mb-12 text-text">Real People, Real Matches</h2>
-      <div className="grid md:grid-cols-2 gap-8 items-center">
-        <div className="rounded-lg overflow-hidden shadow-2xl">
-          <Image src="/images/twins1.jpg" alt="Lookalike match example 1" width={600} height={600} className="w-full h-full object-cover" />
+  <section id="how-it-works" style={{ padding: '5rem 0', backgroundColor: 'var(--primary-color)' }}>
+    <div className="container" style={{ textAlign: 'center' }}>
+      <h2 style={{ fontSize: '2.5rem', fontWeight: '700', marginBottom: '3rem' }}>How It Works</h2>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+        <div className="card">
+          <h3 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '0.5rem' }}>1. Upload a Photo</h3>
+          <p>Choose a clear, front-facing photo of yourself for the best results.</p>
         </div>
-        <div className="rounded-lg overflow-hidden shadow-2xl">
-          <Image src="/images/twins2.jpg" alt="Lookalike match example 2" width={600} height={600} className="w-full h-full object-cover" />
+        <div className="card">
+          <h3 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '0.5rem' }}>2. AI Analysis</h3>
+          <p>Our advanced AI model analyzes the unique features of your face.</p>
+        </div>
+        <div className="card">
+          <h3 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '0.5rem' }}>3. Discover Matches</h3>
+          <p>See your top matches and get your similarity score instantly.</p>
         </div>
       </div>
     </div>
-  </div>
+  </section>
 );
 
-const AboutDeveloperSection = () => (
-  <div className="bg-primary py-20">
-    <div className="container mx-auto px-6 text-center">
-      <h2 className="text-4xl font-bold mb-4 text-text">About the Developer</h2>
-      <p className="text-lg text-gray-700 max-w-3xl mx-auto">
-        This application was created by Akash Kumar, a passionate developer exploring the intersection of web technologies and artificial intelligence. The goal is to build fun, engaging, and technically interesting projects.
-      </p>
+const FeaturesSection = () => (
+  <section id="features" style={{ padding: '5rem 0' }}>
+    <div className="container" style={{ textAlign: 'center' }}>
+      <h2 style={{ fontSize: '2.5rem', fontWeight: '700', marginBottom: '3rem' }}>Why You&apos;ll Love Lookalike</h2>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem' }}>
+        <div className="card">
+          <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>Easy Login</h3>
+          <p>Get started in seconds with secure Google or Email sign-in.</p>
+        </div>
+        <div className="card">
+          <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>Instant Search</h3>
+          <p>Find your lookalike without needing to create an account first.</p>
+        </div>
+        <div className="card">
+          <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>Connect & Have Fun</h3>
+          <p>Discover your twin, connect with them through our future chat feature, and share the fun.</p>
+        </div>
+        <div className="card">
+          <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>You&apos;re in Control</h3>
+          <p>Easily manage your profile and delete your account and all data whenever you want.</p>
+        </div>
+      </div>
     </div>
-  </div>
+  </section>
 );
 
-
-// --- Main Page Component ---
 export default function LandingPage() {
   return (
     <div>
       <HeroSection />
       <SeeTheMagicSection />
       <HowItWorksSection />
-      <AboutDeveloperSection />
+      <FeaturesSection />
     </div>
   );
 }
