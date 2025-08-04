@@ -5,14 +5,11 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
-interface UserProfile {
-  display_name: string;
-  profile_pic_url: string;
-}
+// The UserProfile interface was removed as the type is handled by the AuthContext.
 
 export default function ProfilePage() {
   const { user, profile, loading, hasCompletedOnboarding } = useAuth();
-  const router = useRouter();
+  const router = useRouter(); // This is used for redirects.
 
   const [displayName, setDisplayName] = useState('');
   const [profilePicFile, setProfilePicFile] = useState<File | null>(null);
