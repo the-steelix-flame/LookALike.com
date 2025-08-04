@@ -3,10 +3,11 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { AuthProvider } from '@/context/AuthContext'
 import { Header } from '@/components/Header'
-import Link from 'next/link'
 import { Logo } from '@/components/Logo'
 
 const inter = Inter({ subsets: ['latin'] })
+
+// ... rest of the layout file is the same ...
 
 export const metadata: Metadata = {
   title: 'Lookalike Finder',

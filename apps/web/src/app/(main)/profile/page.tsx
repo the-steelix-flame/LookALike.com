@@ -43,13 +43,11 @@ export default function ProfilePage() {
     if (!user) return;
     setIsSaving(true);
 
-    let profilePicUrl = profile?.profile_pic_url; // Start with the existing URL
+    let profilePicUrl = profile?.profile_pic_url;
     let profilePic_base64: string | null = null;
 
-    // If a new file was selected, upload it to Cloudinary
     if (profilePicFile) {
       try {
-        // 1. Get a signature from our backend
         const timestamp = Math.round(new Date().getTime() / 1000);
         const signatureResponse = await fetch('/api/sign-cloudinary-upload', {
           method: 'POST',
@@ -58,22 +56,19 @@ export default function ProfilePage() {
         });
         const { signature } = await signatureResponse.json();
 
-        // 2. Prepare form data for Cloudinary
         const formData = new FormData();
         formData.append('file', profilePicFile);
         formData.append('api_key', process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY!);
         formData.append('signature', signature);
         formData.append('timestamp', timestamp.toString());
 
-        // 3. Upload directly to Cloudinary
         const cloudinaryResponse = await fetch(`https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME!}/image/upload`, {
           method: 'POST',
           body: formData,
         });
         const cloudinaryData = await cloudinaryResponse.json();
-        profilePicUrl = cloudinaryData.secure_url; // Get the new URL
+        profilePicUrl = cloudinaryData.secure_url;
 
-        // 4. Get base64 for embedding
         profilePic_base64 = await new Promise((resolve) => {
           const reader = new FileReader();
           reader.onloadend = () => resolve(reader.result as string);
@@ -89,7 +84,6 @@ export default function ProfilePage() {
     }
     
     try {
-      // 5. Call our backend API with the new data
       const response = await fetch('/api/users/update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -104,17 +98,45 @@ export default function ProfilePage() {
       if (!response.ok) throw new Error('Failed to save changes.');
 
       alert('Profile updated successfully!');
-    } catch (error: any) {
-      alert(error.message);
+    } catch (error) {
+      // FIX: Check if the error is an instance of Error before using .message
+      if (error instanceof Error) {
+        alert(error.message);
+      } else {
+        alert('An unknown error occurred.');
+      }
     } finally {
       setIsSaving(false);
     }
   };
 
-  // ... (rest of the component is the same)
-  const handleDeleteAccount = async () => { /* ... */ };
-  if (loading) { /* ... */ }
-  if (!user || !hasCompletedOnboarding) { /* ... */ }
+  const handleDeleteAccount = async () => {
+    if (!user) return;
+    if (window.confirm('Are you sure you want to delete your account? This is permanent.')) {
+        try {
+            await fetch('/api/users/delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: user.uid }),
+            });
+            alert('Account deleted successfully. You will be logged out.');
+            await user.delete(); 
+            router.push('/');
+        } catch (error) {
+            alert('Failed to delete account.');
+            console.error(error);
+        }
+    }
+  };
+
+  if (loading || (user && !profile)) {
+    return <div className="text-center py-10">Loading profile...</div>;
+  }
+
+  if (!user || !hasCompletedOnboarding) {
+    router.push('/onboarding');
+    return null;
+  }
 
   return (
     <div className="profile-page">
